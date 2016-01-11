@@ -51,6 +51,18 @@ function ViewModel() {
 	var infowindow;
 	var toggleAnimation;
 
+	function infowindowGenerator(name, url, address, city, country, rating) {
+		var content = 
+		'<div>' +
+		'<h3>Name: ' + name + '</h3>' +
+		'<h3>Rating: ' + rating +'</h3>' +
+		'<h5>Address: ' + address + '</h5>' +
+		'<h5>City: ' + city + '</h5>' +
+		'<h5>Country: ' + country + '</h5>' +
+		'</div>'
+		return content;
+	};
+
 	self.setInfoWindow = function(clickedattraction) {
 		var index = self.markerList.indexOf(clickedattraction);
 		toggleAnimation(self.markerList()[index]);
@@ -78,12 +90,13 @@ function ViewModel() {
 				});
 
 				attractions.forEach(function(markerItem) {
+					var content = infowindowGenerator(markerItem.name, markerItem.url, markerItem.address, markerItem.city, markerItem.country, markerItem.rating);
 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(markerItem.lat, markerItem.lng),
 						map: map,
 						animation: google.maps.Animation.DROP,
-						title: markerItem.name
-
+						title: markerItem.name,
+						content: content
 					});
 					marker.addListener('click', function() {
 						toggleAnimation(marker);
@@ -95,11 +108,10 @@ function ViewModel() {
 						})
 						marker.setAnimation(google.maps.Animation.BOUNCE);
 						infowindow.open(map, marker);
-						infowindow.setContent(marker.title);
+						infowindow.setContent(marker.content);
 					}
 					self.markerList.push(marker);
 					self.matchedMarkers.push(marker);
-
 				})
 			},
             
@@ -111,7 +123,7 @@ function ViewModel() {
 
 		
 		
-	}initialize();
+	}initialize();             	
 }}
 
 function init() {

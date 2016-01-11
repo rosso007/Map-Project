@@ -1,26 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang-"en">
   <head>
-    <link type="text/css" href="css\style.css">
     <meta charset="UTF-8">
-    <title>Wellington BBQ's</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Best of Wellington, NZ</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
-      html, body { height: 100%; margin: 0; padding: 0; } #list {height: 100%; width: 30%; float: left;} #map {height: 100%; width: 70%; float: right;} #map-error {height: 100%; width: 100%;} h5 {text-align: center}
+      html, body { height: 100%; margin: 0; padding: 0; } #map {height: 100%; width: 100%; float: right;} #map-error {height: 100%; width: 100%;} h5 {text-align: center}
     </style>
+    <link href="dashboard.css" rel="stylesheet">
   </head>
   <body>
-    <div id="list">
-      <div>
-        <input type="search" data-bind="textInput: query" placeholder= "Filter your locations here..." >
+      <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Best of Wellington, NZ</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right">
+            <input type="text" class="form-control" data-bind="textInput: query" placeholder= "Filter your locations here..." >
+          </form>
+          <div class="list-group nav navbar-nav navbar-right" data-bind= "foreach: search()">
+            <button type="button" class="list-group-item" data-bind= "text: title, click: $parent.setInfoWindow"></button>
+          </div>
+        </div>
       </div>
-      <div data-bind= "foreach: search()">
-      <div data-bind= "text: title, click: $parent.setInfoWindow"></div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <form class="nav nav-sidebar">
+            <input type="text" class="form-control" data-bind="textInput: query" placeholder= "Filter your locations here..." >
+          </form>
+          <div class="list-group nav nav-sidebar" data-bind= "foreach: search()">
+            <button type="button" class="list-group-item" data-bind= "text: title, click: $parent.setInfoWindow"></button>
+          </div>
+        </div>
       </div>
-    </div> 
-    <div id="map-error"></div>   
-    <div id="map"></div>
+    </div>
+
+    <div id="map-error" class="container"></div>   
+    <div id="map" class="container"></div>
   </body>
   <script src="js\jquery-2.2.0.js"></script>
+  <script src="js/bootstrap.min.js"></script>
   <script src="js\knockout-3.4.0.js"></script>
   <script src="js\newapp.js"></script>
   <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6W7BkVhKDQDA3HxdT5ygfTwEDD5XsIzo&callback=init" onerror="apiError('Google')"></script>
