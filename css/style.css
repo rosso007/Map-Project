@@ -1,3 +1,63 @@
-html, body { height: 100%; margin: 0; padding: 0; }
-.list {height: 100%; width: 30%; float: left;}
-.map {height: 100%; width: 70%; float: right;}
+html,
+body,
+.container-fluid,
+.row,
+.map-container {
+    height: 100%
+}
+body {
+    padding-top: 50px;
+}
+h6 {
+    text-align: center
+}
+.map-container {
+    padding: 0;
+}
+.navbar-fixed-top {
+    border: 0;
+}
+.sidebar-container {
+    padding: 0;
+}
+.sidebar {
+    display: none;
+}
+@media (min-width: 768px) {
+    .sidebar {
+        top: 51px;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        display: block;
+        padding: 0 20px 20px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        /* Scrollable contents if viewport is shorter than content. */
+        
+        background-color: #f5f5f5;
+        border-right: 1px solid #eee;
+    }
+    .navbar-right {
+        display: none;
+    }
+}
+/* Sidebar navigation */
+
+.nav-sidebar {
+    margin-right: -21px;
+    /* 20px padding + 1px border */
+    
+    margin-bottom: 0;
+    margin-left: -20px;
+}
+.nav-sidebar > li > a {
+    padding-right: 20px;
+    padding-left: 20px;
+}
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+    color: #fff;
+    background-color: #428bca;
+}
