@@ -1,6 +1,6 @@
 var attractions = [];
 
-var Attraction = function(name,url,lat,lng,address,city,country,rating) {
+var Attraction = function(name, url, lat, lng, address, city, country, rating) {
 	this.name = name;
 	this.url = url;
 	this.lat = lat;
@@ -12,6 +12,10 @@ var Attraction = function(name,url,lat,lng,address,city,country,rating) {
 }
 
 function ViewModel() {
+	if (typeof google === 'undefined' || google === null) {
+		googleError()  
+	} else {
+
 	var self = this;
 	var map;
 	var mapLocation;
@@ -26,73 +30,98 @@ function ViewModel() {
 	self.matchedMarkers = ko.observableArray([]);
 	self.query = ko.observable('').extend({
 		rateLimit: {
-		timeout: 1000,
-		method: "notifyWhenChangesStop"
+			timeout: 1000,
+			method: "notifyWhenChangesStop"
 		}
 	});
 
-	self.search = ko.computed(function(){ 
-    	var resultsList = ko.utils.arrayFilter(self.matchedMarkers(), function(marker){
-    		var result = marker.title.toLowerCase().indexOf(self.query().toLowerCase()) >= 0; 
-    		if (result === false) {
-    		marker.setMap(null); 
-    		} else {marker.setMap(map)} 
-    		return result;
-    	});
-    	return resultsList;
-  	});
-	
+	self.search = ko.computed(function() {
+		var resultsList = ko.utils.arrayFilter(self.matchedMarkers(), function(marker) {
+			var result = marker.title.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
+			if (result === false) {
+				marker.setMap(null);
+			} else {
+				marker.setMap(map)
+			}
+			return result;
+		});
+		return resultsList;
+	});
+
 	var infowindow;
+	var toggleAnimation;
+
 	self.setInfoWindow = function(clickedattraction) {
-		console.log(clickedattraction);
 		var index = self.markerList.indexOf(clickedattraction);
-		console.log(index);
-		infowindow.open(map, self.markerList()[index]);
-		infowindow.setContent(self.markerList()[index].title);
-
-	} 	
-
-	function initialize() {
-		mapLocation = new google.maps.LatLng(-41.2912176, 174.7784507);
-	    map = new google.maps.Map(document.getElementById('map'), {
-	    	center: mapLocation,
-	    	zoom: 14
-	    });
-	    infowindow = new google.maps.InfoWindow({});
-
-	    $.getJSON(foursquareUrl, function(data) {
-	    	
-	    	data.response.groups[0].items.forEach(function (item){
-	    		foursquareVenues.push(item.venue);
-	    	})
-
-	    	foursquareVenues.forEach(function(venue) { 
-	   			var attraction = new Attraction(venue.name,venue.url,venue.location.lat,venue.location.lng,venue.location.address,venue.location.city,venue.location.country,venue.rating);	   		
-	   			attractions.push(attraction);
-	   		});
-
-	    	attractions.forEach(function(markerItem) {
-	    		var marker = new google.maps.Marker({
-	          	position: new google.maps.LatLng(markerItem.lat,markerItem.lng),
-	          	map: map,
-	          	title: markerItem.name
-
-			});
-	    	marker.addListener('click', function() {
-    			infowindow.open(map, marker);
-    			infowindow.setContent(marker.title);
-  			});
-
-			self.markerList.push(marker);
-			self.matchedMarkers.push(marker);
-
-	  		})
-	    });
+		toggleAnimation(self.markerList()[index]);
 	}
 
+	function initialize() {
+			mapLocation = new google.maps.LatLng(-41.3, 174.79);
+			map = new google.maps.Map(document.getElementById('map'), {
+				center: mapLocation,
+				zoom: 14
+			});
+			infowindow = new google.maps.InfoWindow({});
+
+			$.ajax({
+            url: foursquareUrl,
+            dataType: 'json',
+            success: function(data) {
+				data.response.groups[0].items.forEach(function(item) {
+					foursquareVenues.push(item.venue);
+				})
+
+				foursquareVenues.forEach(function(venue) {
+					var attraction = new Attraction(venue.name, venue.url, venue.location.lat, venue.location.lng, venue.location.address, venue.location.city, venue.location.country, venue.rating);
+					attractions.push(attraction);
+				});
+
+				attractions.forEach(function(markerItem) {
+					var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(markerItem.lat, markerItem.lng),
+						map: map,
+						animation: google.maps.Animation.DROP,
+						title: markerItem.name
+
+					});
+					marker.addListener('click', function() {
+						toggleAnimation(marker);
+					});
+
+					toggleAnimation = function(marker) {
+						self.markerList().forEach(function(marker) {
+							marker.setAnimation(null)
+						})
+						marker.setAnimation(google.maps.Animation.BOUNCE);
+						infowindow.open(map, marker);
+						infowindow.setContent(marker.title);
+					}
+					self.markerList.push(marker);
+					self.matchedMarkers.push(marker);
+
+				})
+			},
+            
+            error: function() {
+            	apiError("Foursquare");
+            }
+        });
 
 
-	google.maps.event.addDomListener(window, 'load', initialize); 
+		
+		
+	}initialize();
+}}
+
+function init() {
+	$('#map-error').hide();
+	var viewModel = new ViewModel();
+	ko.applyBindings(viewModel);
 }
-var viewModel = new ViewModel();
-ko.applyBindings(viewModel);
+
+function apiError(api) {
+	$('#map').hide();
+	$('#list').hide();
+    $('#map-error').html('<h5>There was problem retrieving map information from ' + api + '.<br>' + api + ' is working on this... probably. <br>Take a break and try later. :)</h5>');
+}

@@ -5,11 +5,8 @@
     <meta charset="UTF-8">
     <title>Wellington BBQ's</title>
     <style type="text/css">
-      html, body { height: 100%; margin: 0; padding: 0; } #list {height: 100%; width: 30%; float: left;} #map {height: 100%; width: 70%; float: right;}
+      html, body { height: 100%; margin: 0; padding: 0; } #list {height: 100%; width: 30%; float: left;} #map {height: 100%; width: 70%; float: right;} #map-error {height: 100%; width: 100%;} h5 {text-align: center}
     </style>
-    <script src="js\jquery-2.2.0.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6W7BkVhKDQDA3HxdT5ygfTwEDD5XsIzo&libraries=places"></script>
-
   </head>
   <body>
     <div id="list">
@@ -19,11 +16,12 @@
       <div data-bind= "foreach: search()">
       <div data-bind= "text: title, click: $parent.setInfoWindow"></div>
       </div>
-    </div>    
+    </div> 
+    <div id="map-error"></div>   
     <div id="map"></div>
   </body>
-
+  <script src="js\jquery-2.2.0.js"></script>
   <script src="js\knockout-3.4.0.js"></script>
-  <script async src="js\newapp.js"></script>
-
+  <script src="js\newapp.js"></script>
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6W7BkVhKDQDA3HxdT5ygfTwEDD5XsIzo&callback=init" onerror="apiError('Google')"></script>
 </html>
