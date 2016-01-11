@@ -1,3 +1,4 @@
+//Attractions are created using the Attraction model and stored in the attactions array.
 var attractions = [];
 var Attraction = function(name, url, lat, lng, address, city, country, rating) {
 	this.name = name;
@@ -11,10 +12,12 @@ var Attraction = function(name, url, lat, lng, address, city, country, rating) {
 }
 
 function ViewModel() {
+	//Error handling for google maps.
 	if (typeof google === 'undefined' || google === null) {
 		googleError()
 	} else {
 		function datestring() {
+			//used to generated the date for the request URL with foursquare.
 			var today = new Date();
 			var dd = today.getDate();
 			var mm = today.getMonth() + 1; //January is 0!
@@ -31,6 +34,7 @@ function ViewModel() {
 		var self = this;
 		var map;
 		var mapLocation;
+		//Foursquare API request variables.
 		var foursquareClientId = "K0R1ICQPTNSLDHJMIGCS3BJ4WDBLWEWWI5CJ0GANLJR3H3NY";
 		var foursquareClientSecret = "OCVJ4QCILOMGPVH5EPOAL1BV1EEIDIVIVJN4UKJ4UA5ZKQ1Q";
 		var foursquareDate = datestring();
@@ -38,6 +42,7 @@ function ViewModel() {
 		var foursquareSection = "topPicks";
 		var foursquareUrl = "https://api.foursquare.com/v2/venues/explore?ll=40.7,-74&client_id=" + foursquareClientId + "&client_secret=" + foursquareClientSecret + "&v=" + foursquareDate + "&near=" + foursquareLocation + "&section=" + foursquareSection;
 		var foursquareVenues = [];
+		//markerList is used to store all markers. matchedMarkers stores the markers which are visible within the list view on screen.
 		self.markerList = ko.observableArray([]);
 		self.matchedMarkers = ko.observableArray([]);
 		self.query = ko.observable('').extend({
@@ -46,6 +51,7 @@ function ViewModel() {
 				method: "notifyWhenChangesStop"
 			}
 		});
+		// The search function filters the markers.
 		self.search = ko.computed(function() {
 			var resultsList = ko.utils.arrayFilter(self.matchedMarkers(), function(marker) {
 				var result = marker.title.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
@@ -60,16 +66,17 @@ function ViewModel() {
 		});
 		var infowindow;
 		var toggleAnimation;
-
+		// InfowindowGenerator function creates the HTML used to populate the infowindow.
 		function infowindowGenerator(name, url, address, city, country, rating) {
 			var content = '<div>' + '<h4>' + name + '</h4>' + '<h4>Rating: ' + rating + '</h4>' + '<h6>Address: ' + address + '</h6>' + '<h6>City: ' + city + '</h6>' + '<h6>Country: ' + country + '</h6>' + '</div>'
 			return content;
 		};
+		// setInfoWIndow function changes the infowindow to the clicked marker.
 		self.setInfoWindow = function(clickedattraction) {
 			var index = self.markerList.indexOf(clickedattraction);
 			toggleAnimation(self.markerList()[index]);
 		}
-
+		// google maps initialize function.
 		function initialize() {
 			mapLocation = new google.maps.LatLng(-41.3, 174.79);
 			map = new google.maps.Map(document.getElementById('map'), {
@@ -77,9 +84,11 @@ function ViewModel() {
 				zoom: 13
 			});
 			infowindow = new google.maps.InfoWindow({});
+			//Foursquare ajax request with success and error handling.
 			$.ajax({
 				url: foursquareUrl,
 				dataType: 'json',
+				// The success function stores the returned vanues within the foursquarevenues array. Then for each venue, it creates and attraction object. Then for each attraction with will create the marker and content.
 				success: function(data) {
 					data.response.groups[0].items.forEach(function(item) {
 						foursquareVenues.push(item.venue);
@@ -116,6 +125,7 @@ function ViewModel() {
 					apiError("Foursquare");
 				}
 			});
+			// resizes the google map on browser window change.
 			google.maps.event.addDomListener(window, "resize", function() {
 				var center = map.getCenter();
 				google.maps.event.trigger(map, "resize");
@@ -125,13 +135,13 @@ function ViewModel() {
 		initialize();
 	}
 }
-
+// wrapper function to hide the error message container and create the viewmodel instance + apply bindings for knockout.
 function init() {
 	$('#map-error').hide();
 	var viewModel = new ViewModel();
 	ko.applyBindings(viewModel);
 }
-
+// generic API error message to handle errors for both google maps and foursquare in a consistent manner.
 function apiError(api) {
 	$('#map').hide();
 	$('#list').hide();
